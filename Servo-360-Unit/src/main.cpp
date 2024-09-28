@@ -11,11 +11,10 @@
 #include <M5StickCPlus2.h>
 
 int pwmPin = 32;
+int pwd = 0;
 
 void setup() {
-  auto cfg = M5.config();
-  cfg.serial_baudrate = 115200;
-  M5.begin(cfg);
+  Serial.begin(115200); 
 
   ledcSetup(1, 50, TIMER_WIDTH);
 
@@ -33,29 +32,50 @@ bool ButtonC() {
   return digitalRead(KEY_PIN_C) == LOW;
 }
 
-void kaiten(uint8_t channel, uint32_t value) {
+void Rotate(uint8_t channel, uint32_t value) {
   ledcWrite(channel, value);
 }
 
-void display(const char *str) {
-  M5.Display.fillScreen(TFT_BLACK);
-  M5.Display.setCursor(20, 80);
-  M5.Display.setTextSize(2);
-  M5.Display.printf("%s", str);
+void DisplayRotation(const char* rotationType, int speed) {
+  Rotate(1, speed);
+  Serial.printf("%s: %d\n", rotationType, speed);
+  delay(1000);
+}
+
+void RotateRightHighSpeed() {
+  DisplayRotation("ROTATE_RIGHT_HIGH_SPEED", ROTATE_RIGHT_HIGH_SPEED);
+}
+
+void RotateRightLowSpeed() {
+  DisplayRotation("ROTATE_RIGHT_LOW_SPEED", ROTATE_RIGHT_LOW_SPEED);
+}
+
+void StopRotation() {
+  DisplayRotation("ROTATE_STOP", ROTATE_STOP);
+}
+
+void RotateLeftHighSpeed() {
+  DisplayRotation("ROTATE_LEFT_HIGH_SPEED", ROTATE_LEFT_HIGH_SPEED);
+}
+
+void RotateLeftLowSpeed() {
+  DisplayRotation("ROTATE_LEFT_LOW_SPEED", ROTATE_LEFT_LOW_SPEED);
+}
+
+void WaitForButtonA() {
+  while (!ButtonA()) {
+    delay(100);
+  }
 }
 
 void loop() {
-  
-  
-  if (ButtonA()) {
-    kaiten(1, ROTATE_RIGHT_HIGH_SPEED);
-    display("Rotation: True"); 
-  }
-  else if (ButtonC()) {
-    kaiten(1, ROTATE_STOP);
-    display("Rotation: false"); 
-  }
+  RotateRightHighSpeed();
+  RotateRightLowSpeed();
+  StopRotation();
+  RotateLeftHighSpeed();
+  RotateLeftLowSpeed();
+  StopRotation();
 
-  M5.update();
-  delay(100);
+  Serial.println("Press ButtonA to continue...");
+  WaitForButtonA();
 }
