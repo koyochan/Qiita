@@ -11,71 +11,53 @@
 #include <M5StickCPlus2.h>
 
 int pwmPin = 32;
-int pwd = 0;
 
 void setup() {
   Serial.begin(115200); 
 
+  // PWM設定
   ledcSetup(1, 50, TIMER_WIDTH);
+  ledcAttachPin(pwmPin, 1);
 
+  // ボタンの入力設定
   pinMode(KEY_PIN_A, INPUT_PULLUP);
   pinMode(KEY_PIN_C, INPUT_PULLUP);
-
-  ledcAttachPin(pwmPin, 1);
-}
-
-bool ButtonA() {
-  return digitalRead(KEY_PIN_A) == LOW;
-}
-
-bool ButtonC() {
-  return digitalRead(KEY_PIN_C) == LOW;
-}
-
-void Rotate(uint8_t channel, uint32_t value) {
-  ledcWrite(channel, value);
-}
-
-void DisplayRotation(const char* rotationType, int speed) {
-  Rotate(1, speed);
-  Serial.printf("%s: %d\n", rotationType, speed);
-  delay(1000);
-}
-
-void RotateRightHighSpeed() {
-  DisplayRotation("ROTATE_RIGHT_HIGH_SPEED", ROTATE_RIGHT_HIGH_SPEED);
-}
-
-void RotateRightLowSpeed() {
-  DisplayRotation("ROTATE_RIGHT_LOW_SPEED", ROTATE_RIGHT_LOW_SPEED);
-}
-
-void StopRotation() {
-  DisplayRotation("ROTATE_STOP", ROTATE_STOP);
-}
-
-void RotateLeftHighSpeed() {
-  DisplayRotation("ROTATE_LEFT_HIGH_SPEED", ROTATE_LEFT_HIGH_SPEED);
-}
-
-void RotateLeftLowSpeed() {
-  DisplayRotation("ROTATE_LEFT_LOW_SPEED", ROTATE_LEFT_LOW_SPEED);
-}
-
-void WaitForButtonA() {
-  while (!ButtonA()) {
-    delay(100);
-  }
 }
 
 void loop() {
-  RotateRightHighSpeed();
-  RotateRightLowSpeed();
-  StopRotation();
-  RotateLeftHighSpeed();
-  RotateLeftLowSpeed();
-  StopRotation();
+  // 右に高速回転
+  ledcWrite(1, ROTATE_RIGHT_HIGH_SPEED);
+  Serial.printf("ROTATE_RIGHT_HIGH_SPEED: %d\n", ROTATE_RIGHT_HIGH_SPEED);
+  delay(1000);
 
+  // 右に低速回転
+  ledcWrite(1, ROTATE_RIGHT_LOW_SPEED);
+  Serial.printf("ROTATE_RIGHT_LOW_SPEED: %d\n", ROTATE_RIGHT_LOW_SPEED);
+  delay(1000);
+
+  // 停止
+  ledcWrite(1, ROTATE_STOP);
+  Serial.printf("ROTATE_STOP: %d\n", ROTATE_STOP);
+  delay(1000);
+
+  // 左に高速回転
+  ledcWrite(1, ROTATE_LEFT_HIGH_SPEED);
+  Serial.printf("ROTATE_LEFT_HIGH_SPEED: %d\n", ROTATE_LEFT_HIGH_SPEED);
+  delay(1000);
+
+  // 左に低速回転
+  ledcWrite(1, ROTATE_LEFT_LOW_SPEED);
+  Serial.printf("ROTATE_LEFT_LOW_SPEED: %d\n", ROTATE_LEFT_LOW_SPEED);
+  delay(1000);
+
+  // 停止
+  ledcWrite(1, ROTATE_STOP);
+  Serial.printf("ROTATE_STOP: %d\n", ROTATE_STOP);
+  delay(1000);
+
+  // ボタンAが押されるまで待つ
   Serial.println("Press ButtonA to continue...");
-  WaitForButtonA();
+  while (digitalRead(KEY_PIN_A) != LOW) {
+    delay(100);
+  }
 }
